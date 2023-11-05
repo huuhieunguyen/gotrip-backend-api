@@ -21,6 +21,23 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'email_verification_token',
+        'email_verified_at',
+        'phone_number',
+        'tag_name',
+        'avatar_url',
+        'cover_image_url',
+        'is_active',
+        'last_active_time',
+        'inactice_duration',
+        'intro',
+        'portfolio_url',
+        'count_followees',
+        'count_followers',
+        // 'receiver_id',
+        // 'sender_id',
+        // 'followees',
+        // 'followers',
     ];
 
     /**
@@ -41,4 +58,24 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    public function followers()
+    {
+        return $this->belongsToMany(User::class, 'user_relationships', 'followee_id', 'follower_id');
+    }
+
+    public function followees()
+    {
+        return $this->belongsToMany(User::class, 'user_relationships', 'follower_id', 'followee_id');
+    }
+
+    public function getFollowers()
+    {
+        return $this->followers()->get();
+    }
+
+    public function getFollowees()
+    {
+        return $this->followees()->get();
+    }
 }
