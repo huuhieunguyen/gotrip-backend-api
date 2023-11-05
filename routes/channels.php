@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Broadcast;
+use App\Models\Chat;
 
 /*
 |--------------------------------------------------------------------------
@@ -15,4 +16,13 @@ use Illuminate\Support\Facades\Broadcast;
 
 Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
     return (int) $user->id === (int) $id;
+});
+
+// make sure that only these chat participants can subscribe to this channel 
+// so no one else can see the chat messages
+Broadcast::channel('chat.{id}', function ($user, $id) {
+    $chat = Chat::find($id);
+    if($chat->isParticipant($user->id)){
+        return ['id' => $user->id, 'name' => $user->first_name];
+    }
 });

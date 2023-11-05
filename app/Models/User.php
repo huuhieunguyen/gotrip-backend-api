@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class User extends Authenticatable
 {
@@ -77,5 +78,12 @@ class User extends Authenticatable
     public function getFollowees()
     {
         return $this->followees()->get();
+    }
+
+    // One user can have many chats and one chat can have many users,
+    // so we will define it as many-to-many relationships with a pivot table.
+    public function chats(): BelongsToMany
+    {
+        return $this->belongsToMany(Chat::class);
     }
 }
