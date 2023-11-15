@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Broadcast;
 use App\Http\Controllers\AuthController;
 
 // use App\Http\Controllers\Authentication\RegisterController;
@@ -17,6 +18,7 @@ use App\Models\User;
 use App\Http\Controllers\AuthenController;
 use App\Http\Controllers\User\UserController;
 use App\Http\Controllers\User\FollowController;
+use App\Http\Controllers\ChatController;
 
 /*
 |--------------------------------------------------------------------------
@@ -28,6 +30,7 @@ use App\Http\Controllers\User\FollowController;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+Broadcast::routes(['middleware' => ['auth:sanctum']]);
 
 Route::prefix('v1/authen')->group(function () {
     Route::post('/register', [AuthenController::class, 'register']);
@@ -47,6 +50,16 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/unfollow', [FollowController::class, 'unfollow']);
         Route::get('/followers', [FollowController::class, 'getFollowers']);
         Route::get('/followees', [FollowController::class, 'getFollowees']);
+    });
+
+    // Chat routes
+    Route::prefix('v1/chat')->group(function () {
+        Route::get('/get-chats',[ChatController::class, 'getChats']);
+        Route::post('/create-chat',[ChatController::class, 'createChat']);
+        Route::get('/get-chat-by-id/{chat}',[ChatController::class, 'getChatById']);
+        Route::post('/send-text-message',[ChatController::class, 'sendTextMessage']);
+        Route::post('/search-user',[ChatController::class, 'searchUsers']);
+        Route::get('/message-status/{message}',[ChatController::class, 'messageStatus']);
     });
 });
 
