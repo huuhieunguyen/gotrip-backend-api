@@ -16,6 +16,8 @@ use App\Http\Controllers\AuthController;
 // use App\Http\Controllers\Api\NewPasswordController;
 use App\Models\User;
 use App\Http\Controllers\AuthenController;
+use App\Http\Controllers\Authen\ChangePasswordController;
+use App\Http\Controllers\Authen\ForgotPasswordController;
 use App\Http\Controllers\User\UserController;
 use App\Http\Controllers\User\FollowController;
 use App\Http\Controllers\ChatController;
@@ -35,6 +37,9 @@ Broadcast::routes(['middleware' => ['auth:sanctum']]);
 Route::prefix('v1/authen')->group(function () {
     Route::post('/register', [AuthenController::class, 'register']);
     Route::post('/login', [AuthenController::class, 'login']);
+    Route::post('/forgot-password', [ForgotPasswordController::class, 'forgotPassword']);
+    Route::post('/reset-password', [ForgotPasswordController::class, 'resetPassword']);
+
 });
 
 // Protected Routes
@@ -43,6 +48,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('v1/authen')->group(function () {
         Route::post('/logout', [AuthenController::class, 'logout']);
         Route::patch('/user', [UserController::class, 'update']);
+        Route::patch('/change-password', [ChangePasswordController::class, 'changePassword']);
     });
     
     Route::prefix('v1/user-relationships')->group(function () {
