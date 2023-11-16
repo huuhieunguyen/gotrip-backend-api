@@ -17,7 +17,7 @@ use App\Http\Controllers\AuthController;
 use App\Models\User;
 use App\Http\Controllers\AuthenController;
 use App\Http\Controllers\Authen\ChangePasswordController;
-use App\Http\Controllers\Authen\ForgotPasswordController;
+// use App\Http\Controllers\Authen\ForgotPasswordController;
 use App\Http\Controllers\User\UserController;
 use App\Http\Controllers\User\FollowController;
 use App\Http\Controllers\ChatController;
@@ -37,9 +37,12 @@ Broadcast::routes(['middleware' => ['auth:sanctum']]);
 Route::prefix('v1/authen')->group(function () {
     Route::post('/register', [AuthenController::class, 'register']);
     Route::post('/login', [AuthenController::class, 'login']);
-    Route::post('/forgot-password', [ForgotPasswordController::class, 'forgotPassword']);
-    Route::post('/reset-password', [ForgotPasswordController::class, 'resetPassword']);
+    // Route::post('/forgot-password', [ForgotPasswordController::class, 'forgotPassword']);
+    // Route::post('/reset-password', [ForgotPasswordController::class, 'resetPassword']);
 
+    Route::post('/forgot-password', [App\Http\Controllers\Authentication\ForgotPasswordController::class, 'forgotPassword']);
+    Route::post('/verify/pin', [App\Http\Controllers\Authentication\ForgotPasswordController::class, 'verifyPin']);
+    Route::post('/reset-password', [App\Http\Controllers\Authentication\ResetPasswordController::class, 'resetPassword']);
 });
 
 // Protected Routes
