@@ -61,6 +61,11 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
+    public function posts()
+    {
+        return $this->hasMany(Post::class, 'author_id');
+    }
+
     public function followers()
     {
         return $this->belongsToMany(User::class, 'user_relationships', 'followee_id', 'follower_id');

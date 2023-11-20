@@ -4,23 +4,19 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Broadcast;
-use App\Http\Controllers\AuthController;
 
 // use App\Http\Controllers\Authentication\RegisterController;
 // use App\Http\Controllers\Authentication\AuthenController;
 // use App\Http\Controllers\Authentication\ForgotPasswordController;
 // use App\Http\Controllers\Authentication\ResetPasswordController;
 
-// use App\Http\Controllers\Api\AuthController;
-// use App\Http\Controllers\Api\EmailVerificationController;
-// use App\Http\Controllers\Api\NewPasswordController;
-use App\Models\User;
 use App\Http\Controllers\AuthenController;
 use App\Http\Controllers\Authen\ChangePasswordController;
 // use App\Http\Controllers\Authen\ForgotPasswordController;
 use App\Http\Controllers\User\UserController;
 use App\Http\Controllers\User\FollowController;
 use App\Http\Controllers\ChatController;
+use App\Http\Controllers\PostController;
 
 /*
 |--------------------------------------------------------------------------
@@ -53,7 +49,13 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::patch('/user', [UserController::class, 'update']);
         Route::patch('/change-password', [ChangePasswordController::class, 'changePassword']);
     });
-    
+
+    Route::prefix('v1/posts')->group(function () {
+        Route::post('/', [PostController::class, 'store']);
+        Route::patch('/{postId}', [PostController::class, 'update']);
+        Route::delete('/{postId}', [PostController::class, 'destroy']);
+    });
+
     Route::prefix('v1/user-relationships')->group(function () {
         Route::post('/follow/{id}', [FollowController::class, 'follow']);
         Route::post('/unfollow', [FollowController::class, 'unfollow']);
@@ -78,6 +80,12 @@ Route::prefix('v1/users')->group(function () {
     Route::get('/{id}', [UserController::class, 'show']);
     Route::delete('/{id}', [UserController::class, 'destroy']);
 
+});
+
+// Posts
+Route::prefix('v1/posts')->group(function () {
+    Route::get('/', [PostController::class, 'index']);
+    Route::get('/{authorId}', [PostController::class, 'show']);
 });
 
 /*
