@@ -13,10 +13,12 @@ class PostController extends Controller
     {
         $perPage = $request->query('perPage', 4);
         $posts = Post::orderBy('created_at', 'desc')->paginate($perPage);
+        $posts->load(['author:id,name,avatar_url,is_active,last_active_time']);
+        $posts->load('images');
         return response()->json($posts);
     }
 
-    public function show(Request $request, $authorId)
+    public function getPostsByAuthorID(Request $request, $authorId)
     {
         try {
             $perPage = $request->query('perPage', 4);
@@ -28,7 +30,25 @@ class PostController extends Controller
                 return response()->json(['message' => 'No more posts available for the given author ID'], 404);
             }
 
-            return response()->json($posts);
+            $posts->load('images');
+
+            $author = $posts->first()->author;
+            $posts->getCollection()->transform(function ($post) {
+                $post->unsetRelation('author');
+                return $post;
+            });
+
+            $responseData = [
+                'author' => $author,
+                // 'posts' => $posts->items(),
+                'posts' => $posts,
+                'current_page' => $posts->currentPage(),
+                'last_page' => $posts->lastPage(),
+                'per_page' => $posts->perPage(),
+                'total' => $posts->total(),
+            ];
+
+            return response()->json($responseData);
         } catch (\Exception $e) {
             return response()->json(['message' => 'An error occurred while retrieving posts'], 500);
         }
@@ -55,6 +75,7 @@ class PostController extends Controller
 
         $post->load(['author:id,name,avatar_url,is_active,last_active_time']);
         $post->load('images');
+        // $post->load('author', 'images');
         return response()->json($post->toArray(), 201);
     }
 
@@ -70,6 +91,7 @@ class PostController extends Controller
             'images' => 'array',
             'images.*' => 'url',
             'location' => 'nullable|string',
+            'like_count' => 'nullable|integer'
         ]);
 
         try {

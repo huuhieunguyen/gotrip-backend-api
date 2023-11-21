@@ -85,7 +85,7 @@ Route::prefix('v1/users')->group(function () {
 // Posts
 Route::prefix('v1/posts')->group(function () {
     Route::get('/', [PostController::class, 'index']);
-    Route::get('/{authorId}', [PostController::class, 'show']);
+    Route::get('/{authorId}', [PostController::class, 'getPostsByAuthorID']);
 });
 
 /*
