@@ -34,4 +34,19 @@ class Post extends Model
     {
         return $this->belongsTo(User::class, 'author_id');
     }
+
+    public function likes()
+    {
+        return $this->hasMany(Like::class);
+    }
+
+    // public function likesWithUsers()
+    // {
+    //     return $this->hasMany(Like::class)->with('user');
+    // }
+
+    public function likesWithUsers()
+    {
+        return $this->hasMany(Like::class)->with('user:id,name,avatar_url,cover_image_url,is_active');
+    }
 }
