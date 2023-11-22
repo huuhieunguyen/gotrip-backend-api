@@ -17,6 +17,7 @@ use App\Http\Controllers\User\UserController;
 use App\Http\Controllers\User\FollowController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\PostController;
+use App\Http\Controllers\PostLikeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -54,6 +55,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/', [PostController::class, 'store']);
         Route::patch('/{postId}', [PostController::class, 'update']);
         Route::delete('/{postId}', [PostController::class, 'destroy']);
+
+        Route::post('/{postId}/like', [PostLikeController::class, 'store']);
+        Route::delete('/{postId}/unlike', [PostLikeController::class, 'destroy']);
     });
 
     Route::prefix('v1/user-relationships')->group(function () {
@@ -84,8 +88,10 @@ Route::prefix('v1/users')->group(function () {
 
 // Posts
 Route::prefix('v1/posts')->group(function () {
-    Route::get('/', [PostController::class, 'index']);
+    Route::get('/', [PostController::class, 'getPosts']);
+    Route::get('/posts_with_users_like', [PostController::class, 'getPostsWithLikes']);
     Route::get('/{authorId}', [PostController::class, 'getPostsByAuthorID']);
+    Route::get('/author_posts_with_users_like/{authorId}', [PostController::class, 'getPostsByAuthorIdWithLikes']);
 });
 
 /*
