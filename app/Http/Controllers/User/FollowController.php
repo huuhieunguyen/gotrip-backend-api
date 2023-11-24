@@ -11,194 +11,101 @@ use App\Models\Relationship;
 
 class FollowController extends Controller
 {
-    public function follow(User $followee)
+    public function follow(Request $request)
     {
-        /** @var \App\Models\User $user **/
-        $user = auth()->user();
-        echo $user;
-        // Check if the user is already following the given user
-        if ($user->followees()->where('followee_id', $followee->id)->exists()) {
-            return response()->json(['message' => 'You are already following this user.']);
+        /** @var \App\Models\User $authUser **/
+        $authUser = Auth::user();
+        $userId = $request->input('user_id');
+
+        // Check if the authenticated user is trying to follow their own account
+        if ($authUser->id === $userId) {
+            return response()->json(['message' => 'You cannot follow your own account'], 400);
         }
 
-        $user->followees()->attach($followee->id);
-        dd($followee->id);
-        return response()->json(['message' => 'Successfully followed user.']);
-    }
-
-    public function unfollow(User $followee)
-    {
-        /** @var \App\Models\User $user **/
-        $user = auth()->user();
-
-        // Check if the user is not following the given user
-        if (!$user->followees()->where('followee_id', $followee->id)->exists()) {
-            return response()->json(['message' => 'You are not following this user, so you can not unfollow!']);
+        // Check if the authenticated user is already following the user
+        if ($authUser->followees()->where('followee_id', $userId)->exists()) {
+            return response()->json(['message' => 'You are already following this user'], 400);
         }
 
-        $user->followees()->detach($followee->id);
+        // Attach the user as a followee
+        $authUser->followees()->attach($userId);
 
-        return response()->json(['message' => 'Successfully unfollowed user.']);
+        return response()->json(['message' => 'User followed successfully']);
     }
 
-    // public function follow(Request $request)
-    // {
-    //     $loggedInUser = $request->user();
-    //     $userId = $request->input('user_id');
-
-    //     // Check if the user is already following the given user
-    //     if ($loggedInUser->followees()->where('followee_id', $userId)->exists()) {
-    //         return response()->json(['message' => 'You are already following this user.']);
-    //     }
-
-    //     $loggedInUser->followees()->attach($userId);
-
-    //     return response()->json(['message' => 'Successfully followed user.']);
-    // }
-
-    // public function unfollow(Request $request)
-    // {
-    //     $loggedInUser = $request->user();
-    //     $userId = $request->input('user_id');
-
-    //     // Check if the user is not following the given user
-    //     if (!$loggedInUser->followees()->where('followee_id', $userId)->exists()) {
-    //         return response()->json(['message' => 'You are not following this user.']);
-    //     }
-
-    //     $loggedInUser->followees()->detach($userId);
-
-    //     return response()->json(['message' => 'Successfully unfollowed user.']);
-    // }
-
-    // public function follow(Request $request)
-    // {
-    //     /** @var \App\Models\User $user **/
-    //     $user = Auth::user();
-    //     $followee = User::findOrFail($request->input('followee_id'));
-    //     $followeesArray = $user->followees->pluck('id')->toArray();
-        
-    //     if (!in_array($followee->id, $followeesArray)) {
-    //         $user->push('followees', $followee->id, true);
-    //         $followee->push('followers', $user->id, true);
-    //         return response()->json(['message' => 'Following successful'], 200);
-    //     } else {
-    //         return response()->json(['message' => 'You are already following this user'], 400);       
-    //     }
-
-    //     // if (!in_array($followee->id, $followeesArray)) {
-    //     //     $user->followees()->attach($followee->id);
-    //     //     $followee->followers()->attach($user->id);
-    //     //     return response()->json(['message' => 'Following successful'], 200);
-    //     // } else {
-    //     //     return response()->json(['message' => 'You are already following this user'], 400);       
-    //     // }
-    // }
-
-    // public function unfollow(Request $request)
-    // {
-    //     /** @var \App\Models\User $user **/
-    //     $user = Auth::user();
-    //     $followee = User::findOrFail($request->input('followee_id'));
-    //     $followeesArray = $user->followees->pluck('id')->toArray();
-
-    //     if (in_array($followee->id, $followeesArray)) {
-    //         $user->pull('followees', $followee->id);
-    //         $followee->pull('followers', $user->id);
-    //         return response()->json(['message' => 'Unfollow successfully'], 200);
-    //     } else {
-    //         return response()->json(['message' => 'You can\'t unfollow because you are not friends.'], 400);       
-    //     }
-
-    //     // if ($user->followees()->find($followee->id)) {
-    //     //     $user->followees()->detach($followee->id);
-    //     //     $followee->followers()->detach($user->id);
-    //     //     return response()->json(['message' => 'Unfollow successfully'], 200);
-    //     // } else {
-    //     //     return response()->json(['message' => 'You can\'t unfollow because you are not friends.'], 400);       
-    //     // }
-
-    //     // return response()->json(['message' => 'You are not following this user'], 400);
-    // }
-
-    // public function getAllFollowers()
-    // {
-    //     /** @var \App\Models\User $user **/
-    //     $user = Auth::user();
-
-    //     return response()->json(['followers' => $user->followers], 200);
-    // }
-
-    // public function getAllFollowees()
-    // {
-    //     /** @var \App\Models\User $user **/
-    //     $user = Auth::user();
-
-    //     return response()->json(['followees' => $user->followees], 200);
-    // }
-
-    public function getFollowers(Request $request)
+    public function unfollow(Request $request)
     {
-        $user = $request->user();
-        $followers = $user->getFollowers();
+        /** @var \App\Models\User $authUser **/
+        $authUser = Auth::user();
+        $userId = $request->input('user_id');
+
+        // Check if the authenticated user is trying to unfollow their own account
+        if ($authUser->id === $userId) {
+            return response()->json(['message' => 'You cannot unfollow your own account'], 400);
+        }
+
+        // Check if the authenticated user is currently following the user
+        if (!$authUser->followees()->where('followee_id', $userId)->exists()) {
+            return response()->json(['message' => 'You are not currently following this user'], 400);
+        }
+
+        // Detach the user as a followee
+        $authUser->followees()->detach($userId);
+
+        return response()->json(['message' => 'User unfollowed successfully']);
+    }
+
+    public function getfollowers()
+    {
+        $authUser = Auth::user();
+        $followers = $authUser->followers;
 
         return response()->json(['followers' => $followers]);
     }
 
-    public function getFollowees(Request $request)
+    public function getfollowees()
     {
-        $user = $request->user();
-        $followees = $user->getFollowees();
+        $authUser = Auth::user();
+        $followees = $authUser->followees;
 
         return response()->json(['followees' => $followees]);
     }
-    
-    /* Easy Code */
-	// public function follow(User $userToFollow) { 
-    //     /** @var \App\Models\User $currentUser **/
-	// 	$currentUser = Auth::user(); 
-    //     $currentUser->follow($userToFollow);
-	//     return response()->json(['message' => 'Followed successfully']);
-	// }
-    
-    // public function unfollow(User $userToUnfollow)
-	// {
-	// 	  $currentUser = Auth::user();
-	// 	  $currentUser->unfollow($userToUnfollow);
 
-	// 	  return response()->json(['message' => 'Unfollowed successfully']);
-	// }
-
-    /* Bing AI */
-    // public function follow(User $userToFollow)
+    // public function getfollowers(Request $request)
     // {
-    //     /** @var \App\Models\User $currentUser **/
-    //     $currentUser = Auth::user();
+    //     $perPage = $request->query('perPage', 4);
 
-    //     // Add the target user's id to the current user's following array
-    //     $currentUser->following = array_add($currentUser->following, $userToFollow->_id);
-    //     $currentUser->save();
+    //     /** @var \App\Models\User $authUser **/
+    //     $authUser = Auth::user();
+    //     $followers = $authUser->followers()->paginate($perPage);
 
-    //     // Add the current user's id to the target user's followers array
-    //     $userToFollow->followers = array_add($userToFollow->followers, $currentUser->_id);
-    //     $userToFollow->save();
-
-    //     return response()->json(['message' => 'Followed successfully']);
+    //     // return response()->json(['followers' => $followers]);
+    //     return response()->json(['followers' => $followers->items(), 'pagination' => [
+    //         'total' => $followers->total(),
+    //         'per_page' => $followers->perPage(),
+    //         'current_page' => $followers->currentPage(),
+    //         'last_page' => $followers->lastPage(),
+    //         'from' => $followers->firstItem(),
+    //         'to' => $followers->lastItem(),
+    //     ]]);
     // }
 
-    // public function unfollow(User $userToUnfollow)
+    // public function getfollowees(Request $request)
     // {
-    //     /** @var \App\Models\User $currentUser **/
-    //     $currentUser = Auth::user();
+    //     $perPage = $request->query('perPage', 4);
 
-    //     // Remove the target user's id from the current user's following array
-    //     $currentUser->following = array_remove($currentUser->following, $userToUnfollow->_id);
-    //     $currentUser->save();
+    //     /** @var \App\Models\User $authUser **/
+    //     $authUser = Auth::user();
+    //     $followees = $authUser->followees->paginate($perPage);
 
-    //     // Remove the current user's id from the target user's followers array
-    //     $userToUnfollow->followers = array_remove($userToUnfollow->followers, $currentUser->_id);
-    //     $userToUnfollow->save();
-
-    //     return response()->json(['message' => 'Unfollowed successfully']);
+    //     // return response()->json(['followees' => $followees]);
+    //     return response()->json(['followees' => $followees->items(), 'pagination' => [
+    //         'total' => $followees->total(),
+    //         'per_page' => $followees->perPage(),
+    //         'current_page' => $followees->currentPage(),
+    //         'last_page' => $followees->lastPage(),
+    //         'from' => $followees->firstItem(),
+    //         'to' => $followees->lastItem(),
+    //     ]]);
     // }
 }
