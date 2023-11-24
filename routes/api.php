@@ -61,10 +61,11 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     Route::prefix('v1/user-relationships')->group(function () {
-        Route::post('/follow/{id}', [FollowController::class, 'follow']);
-        Route::post('/unfollow', [FollowController::class, 'unfollow']);
         Route::get('/followers', [FollowController::class, 'getFollowers']);
         Route::get('/followees', [FollowController::class, 'getFollowees']);
+
+        Route::post('/follow', [FollowController::class, 'follow']);
+        Route::delete('/unfollow', [FollowController::class, 'unfollow']);
     });
 
     // Chat routes
