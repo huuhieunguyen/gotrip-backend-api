@@ -75,7 +75,7 @@ class User extends Authenticatable
     public function followees()
     {
         return $this->belongsToMany(User::class, 'user_relationships', 'follower_id', 'followee_id')
-                    ->withTimestamps();;
+                    ->withTimestamps();
     }
 
     // One user can have many chats and one chat can have many users,
