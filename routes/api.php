@@ -5,11 +5,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Broadcast;
 
-// use App\Http\Controllers\Authentication\RegisterController;
-// use App\Http\Controllers\Authentication\AuthenController;
-// use App\Http\Controllers\Authentication\ForgotPasswordController;
-// use App\Http\Controllers\Authentication\ResetPasswordController;
-
 use App\Http\Controllers\AuthenController;
 use App\Http\Controllers\Authen\ChangePasswordController;
 // use App\Http\Controllers\Authen\ForgotPasswordController;
@@ -34,8 +29,6 @@ Broadcast::routes(['middleware' => ['auth:sanctum']]);
 Route::prefix('v1/authen')->group(function () {
     Route::post('/register', [AuthenController::class, 'register']);
     Route::post('/login', [AuthenController::class, 'login']);
-    // Route::post('/forgot-password', [ForgotPasswordController::class, 'forgotPassword']);
-    // Route::post('/reset-password', [ForgotPasswordController::class, 'resetPassword']);
 
     Route::post('/forgot-password', [App\Http\Controllers\Authentication\ForgotPasswordController::class, 'forgotPassword']);
     Route::post('/verify/pin', [App\Http\Controllers\Authentication\ForgotPasswordController::class, 'verifyPin']);
@@ -89,10 +82,10 @@ Route::prefix('v1/users')->group(function () {
 
 // Posts
 Route::prefix('v1/posts')->group(function () {
-    Route::get('/', [PostController::class, 'getPosts']);
-    Route::get('/posts_with_users_like', [PostController::class, 'getPostsWithLikes']);
-    Route::get('/{authorId}', [PostController::class, 'getPostsByAuthorID']);
-    Route::get('/author_posts_with_users_like/{authorId}', [PostController::class, 'getPostsByAuthorIdWithLikes']);
+    Route::get('/', [PostController::class, 'getPostsWithLikes']);
+    Route::get('/posts_without_users_like', [PostController::class, 'getPosts']);
+    Route::get('/{authorId}', [PostController::class, 'getPostsByAuthorIdWithLikes']);
+    Route::get('/by_author_without_users_like/{authorId}', [PostController::class, 'getPostsByAuthorID']);
 });
 
 /*
@@ -113,19 +106,3 @@ Route::get('/test_postgres/', function (Request $request) {
         return ['status' => 'FAIL. exception', 'data' => $e ];
     }
 });
-
-// /*
-//    Send a ping to our postgre cluster to see if our connection settings are correct
-// */
-// Route::get('/test_mongodb/', function (Request $request) {
-
-//     $connection = DB::connection('mongodb');
-//     $msg = 'MongoDB is accessible!';
-//     try {
-//         $connection->command(['ping' => 1]);
-//     } catch (\Exception $e) {
-//         $msg =  'MongoDB is not accessible. Error: ' . $e->getMessage();
-//     }
-
-//     return ['msg' => $msg];
-// });
