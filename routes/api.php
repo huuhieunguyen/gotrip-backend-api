@@ -56,6 +56,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('v1/user-relationships')->group(function () {
         Route::get('/followers', [FollowController::class, 'getFollowers']);
         Route::get('/followees', [FollowController::class, 'getFollowees']);
+        Route::get('/{userId}', [FollowController::class, 'getRelationshipStatus']);
 
         Route::post('/follow', [FollowController::class, 'follow']);
         Route::delete('/unfollow', [FollowController::class, 'unfollow']);
