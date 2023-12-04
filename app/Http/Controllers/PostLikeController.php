@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Like;
 use App\Models\Post;
+use App\Events\PostLiked;
 
 class PostLikeController extends Controller
 {
@@ -38,6 +39,9 @@ class PostLikeController extends Controller
         // Update the like_count field in the posts table
         $post->increment('like_count');
         
+        // Dispatch the PostLiked event
+        event(new PostLiked($post->id, $user->id));
+
         $post->load(['author:id,name,avatar_url,is_active,last_active_time']);
         $post->load('images');
         return response()->json([

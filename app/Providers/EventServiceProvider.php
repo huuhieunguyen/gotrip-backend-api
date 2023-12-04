@@ -6,6 +6,8 @@ use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Event;
+use App\Events\PostLiked;
+use App\Listeners\PostLikedListener;
 
 class EventServiceProvider extends ServiceProvider
 {
@@ -14,9 +16,15 @@ class EventServiceProvider extends ServiceProvider
      *
      * @var array<class-string, array<int, class-string>>
      */
+    // protected $listen = [
+    //     Registered::class => [
+    //         SendEmailVerificationNotification::class,
+    //     ],
+    // ];
+
     protected $listen = [
-        Registered::class => [
-            SendEmailVerificationNotification::class,
+        PostLiked::class => [
+            PostLikedListener::class,
         ],
     ];
 
