@@ -16,12 +16,22 @@ class ChatMessages extends Model
     // we will find that the message belongs to one chat,
     // so we created chat() function 
     // and belongs to the user who sent it, so we made sender().
+    // public function chat(): BelongsTo
+    // {
+    //     return $this->belongsTo(Chat::class);
+    // }
+    // public function sender(): BelongsTo
+    // {
+    //     return $this->belongsTo(User::class, 'user_id');
+    // }
+
     public function chat(): BelongsTo
     {
-        return $this->belongsTo(Chat::class);
+        return $this->belongsTo(Chat::class)->with('participants');
     }
+
     public function sender(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->belongsTo(User::class, 'user_id')->select('id', 'name');
     }
 }
