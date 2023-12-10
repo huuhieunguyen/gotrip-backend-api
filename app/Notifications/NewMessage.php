@@ -95,7 +95,7 @@ class NewMessage extends Notification implements ShouldBroadcast
     {
         return [
                 'chat_id' => $this->message->chat_id,
-                'from' => $this->message->sender->first_name, 
+                'from' => $this->message->sender->name, 
                 'message' => $this->message->message, 
         ];
     }
