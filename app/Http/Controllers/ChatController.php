@@ -66,14 +66,28 @@ class ChatController extends Controller
     public function getChats(Request $request)
     {
         $user = $request->user();
-        $chats = $user->chats()->with(['participants' => function ($query) {
-            $query->select('user_id', 'name', 'email', 'avatar_url');
-        }])->get();
+        $perPage = $request->query('perPage', 4);
+
+        $chats = $user->chats()
+            ->with(['participants' => function ($query) {
+                $query->select('user_id', 'name', 'email', 'avatar_url');
+            }])
+            ->paginate($perPage);
+
+        if ($chats->isEmpty()) {
+            return response()->json([
+                'message' => 'Chat Conversations not found.',
+            ], 404);
+        }
         
-        $success = true;
         return response()->json([
-            'chats' => $chats,
-            'success' => $success
+            'chats' => $chats->items(),
+            'pagination' => [
+                'current_page' => $chats->currentPage(),
+                'last_page' => $chats->lastPage(),
+                'per_page' => $chats->perPage(),
+                'total' => $chats->total(),
+            ]
         ], 200);
     }
 
@@ -225,15 +239,27 @@ class ChatController extends Controller
 
     // get a chat by id
     public function getMessagesById(Chat $chat,Request $request){
+        $perPage = $request->query('perPage', 4);
+
         if($chat->isParticipant($request->user()->id)){
-            $messages = $chat->messages()->with('sender')->orderBy('created_at','asc')->paginate('150');
+            $messages = $chat->messages()
+                            ->with('sender')
+                            ->orderBy('created_at','asc')
+                            ->paginate($perPage);
+
             return response()->json( [
                'chat' => new ChatResource($chat),
-               'messages' => MessageResource::collection($messages)->response()->getData(true)
+               'messages' => MessageResource::collection($messages),
+                'pagination' => [
+                    'current_page' => $messages->currentPage(),
+                    'last_page' => $messages->lastPage(),
+                    'per_page' => $messages->perPage(),
+                    'total' => $messages->total(),
+                ]
             ],200);
         }else{
             return response()->json([
-                'message' => 'not found'
+                'message' => 'Messages not found'
             ], 404);
         }
     }
