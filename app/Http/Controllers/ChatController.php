@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Models\User;
 use App\Models\Chat;
 use App\Models\ChatMessages;
@@ -117,7 +118,14 @@ class ChatController extends Controller
     // we should check if the sender is a participant in this conversation or not,
     // then we create a new message with the status sent
     public function sendTextMessage(SendTextMessageRequest $request){
-        $chat = Chat::find($request->chat_id);
+        try {
+            $chat = Chat::findOrFail($request->chat_id);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'message' => 'ChatID Not Found.',
+            ], 404);
+        }
+        
         if($chat->isParticipant($request->user()->id)){
             $message = ChatMessages::create([
                 'message' => $request->message,
@@ -131,20 +139,20 @@ class ChatController extends Controller
             // broadcast the message to all users 
             broadcast(new ChatMessageSent($message));
 
-            foreach($chat->participants as $participant){
-                if($participant->id != $request->user()->id){
-                    $participant->notify(new NewMessage($message));
-                }
-            }
+            // foreach($chat->participants as $participant){
+            //     if($participant->id != $request->user()->id){
+            //         $participant->notify(new NewMessage($message));
+            //     }
+            // }
             
             return response()->json( [
                 "message"=> $message,
                 "success"=> $success
             ],200);
-        } else{
+        } else {
             return response()->json([
-                'message' => 'not found'
-            ], 404);
+                'message' => 'Not authorized to send messages in this chat.',
+            ], 403);
         }
     }
 
