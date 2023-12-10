@@ -14,12 +14,12 @@ return new class extends Migration
     public function up()
     {
         Schema::create('chat_messages', function (Blueprint $table) {
-            $table->bigIncrements('id');
+            $table->id();
             // message the column is for the message body.
             $table->text('message');
             // "chat_id" is the foreigner key for the chats table and the user_id for the users’ table
-            $table->bigInteger('chat_id')->unsigned();
-            $table->bigInteger('user_id')->unsigned()->nullable();
+            $table->unsignedBigInteger('chat_id');
+            $table->unsignedBigInteger('user_id')->nullable();
             // the message can be text, image, URL, etc so we add the "type" column.
             $table->string('type')->default('text');
 

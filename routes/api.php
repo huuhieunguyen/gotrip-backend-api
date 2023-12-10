@@ -71,12 +71,12 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Chat routes
     Route::prefix('v1/chat')->group(function () {
-        Route::get('/get-chats',[ChatController::class, 'getChats']);
         Route::post('/create-chat',[ChatController::class, 'createChat']);
-        Route::get('/get-chat-by-id/{chat}',[ChatController::class, 'getChatById']);
+        Route::get('/get-chats',[ChatController::class, 'getChats']);
+        Route::get('/search-user',[ChatController::class, 'searchUsers']);
         Route::post('/send-text-message',[ChatController::class, 'sendTextMessage']);
-        Route::post('/search-user',[ChatController::class, 'searchUsers']);
         Route::get('/message-status/{message}',[ChatController::class, 'messageStatus']);
+        Route::get('/get-messages-by-id/{chat}',[ChatController::class, 'getMessagesById']);
     });
 });
 

@@ -9,7 +9,7 @@ use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
-use App\Http\Resources\MassageResource;
+use App\Http\Resources\MessageResource;
 use App\Models\ChatMessages;
 
 
@@ -23,7 +23,7 @@ class ChatMessageStatus implements ShouldBroadcast
 
     public $message;
 
-    public function __construct(MassageResource $message)
+    public function __construct(MessageResource $message)
     {
         $this->message = $message;
     }
