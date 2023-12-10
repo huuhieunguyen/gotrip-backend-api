@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         Schema::create('chats', function (Blueprint $table) {
-            $table->bigIncrements('id');
+            $table->id();
 
             // "private" is for a public chat or private
             $table->boolean('private')->default(true);

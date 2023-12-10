@@ -17,7 +17,8 @@ class Chat extends Model
         'private'        => 'boolean',
     ];
 
-    // defined the relationship with users
+    // defined the relationship with users 
+    // in order to get all participants for a specific chat
     public function participants(): BelongsToMany
     {
         return $this->belongsToMany(User::class);
@@ -34,10 +35,15 @@ class Chat extends Model
     {
         $data = $this->participants->where('id', $user_id)->first();
         if(!empty($data) ){
-         return true;
+            return true;
         }
         return false;
     }
+
+    // public function isParticipant($user_id)
+    // {
+        // return $this->participants->contains('id', $user_id);
+    // }
 
     // make the chat private or public.
     public function makePrivate($isPrivate = true)

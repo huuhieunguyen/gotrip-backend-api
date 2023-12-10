@@ -14,9 +14,9 @@ return new class extends Migration
     public function up()
     {
         Schema::create('chat_user', function (Blueprint $table) {
-            $table->bigIncrements('id');
-            $table->bigInteger('chat_id')->unsigned();
-            $table->bigInteger('user_id')->unsigned();
+            $table->id();
+            $table->unsignedBigInteger('chat_id');
+            $table->unsignedBigInteger('user_id');
             $table->timestamps();
         });
     }
