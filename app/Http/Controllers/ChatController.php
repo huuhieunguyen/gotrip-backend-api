@@ -44,24 +44,6 @@ class ChatController extends Controller
         ],200);
     }
 
-    // public function createChat(CreateChatRequest $request)
-    // {
-    //     $users = $request->users;
-        
-    //     $chat = $request->user()->chats()->whereHas('participants', function ($q) use ($users) {
-    //         $q->where('user_id', $users[0]);
-    //     })->firstOrCreate([]);
-
-    //     $chat->makePrivate($request->isPrivate);
-    //     $chat->participants()->syncWithoutDetaching($users);
-
-    //     $success = true;
-    //     return response()->json([
-    //         'chat' => new ChatResource($chat),
-    //         'success' => $success
-    //     ], 200);
-    // }
-
     // get all conversations of an authenticated user
     public function getChats(Request $request)
     {
@@ -145,7 +127,7 @@ class ChatController extends Controller
                 'message' => $request->message,
                 'chat_id' => $request->chat_id,
                 'user_id' => $request->user()->id,
-                'data' => json_encode(['seenBy'=>[],'status'=>'sent']) //sent, delivered,seen
+                'data' => json_encode(['seenBy'=>[],'status'=>'sent']) //sent, received,seen
             ]);
             $success = true;
             $message =  new MessageResource($message);
@@ -206,38 +188,98 @@ class ChatController extends Controller
     // When the users receive the message,
     // they will send a request to change the message status.
     // so we can add them to 'seenBy' array.
-    public function messageStatus(Request $request,ChatMessages $message){
-        if($message->chat->isParticipant($request->user()->id)){
-            $messageData = json_decode($message->data);
-            array_push($messageData->seenBy,$request->user()->id);
-            $messageData->seenBy = array_unique($messageData->seenBy);
-        
-            //Check if all participants have seen or not
-            if(count($message->chat->participants)-1 < count( $messageData->seenBy)){
-                $messageData->status = 'delivered';
-            } else{
-                $messageData->status = 'seen';    
+    public function messageStatus(Request $request, ChatMessages $message)
+    {
+        $userId = $request->user()->id;
+        $messageUserId = $message->user_id;
+
+        if ($userId === $messageUserId) {
+            return response()->json([
+                'message' => 'You cannot receive or see your own message',
+                'success' => false
+            ], 400);
+        }
+
+        if (!$message->chat->isParticipant($userId)) {
+            return response()->json([
+                'message' => 'Not found the conversation. Because you are not a participant in it',
+                'success' => false
+            ], 404);
+        }
+
+        $messageData = json_decode($message->data);
+        $seenBy = collect($messageData->seenBy ?? []);
+
+        if (!$seenBy->contains($userId)) {
+            $seenBy->push($userId);
+
+            if ($message->chat->participants->count() - 1 === $seenBy->count()) {
+                $messageData->status = 'seen';
+            } else {
+                $messageData->status = 'received';
             }
+
+            $messageData->seenBy = $seenBy->unique()->values()->toArray();
+
             $message->data = json_encode($messageData);
             $message->save();
-            $message =  new MessageResource($message);
-            
-            //triggering the event
-            broadcast(new ChatMessageStatus($message));
 
+            $message = new MessageResource($message);
+
+            broadcast(new ChatMessageStatus($message));
+        } else {
             return response()->json([
-                'message' =>  $message,
-                'success' => true
-            ], 200);
-        } else{
-            return response()->json([
-                'message' => 'Not found',
+                'message' => 'You have already seen this message!',
                 'success' => false
-            ], 404); 
+            ], 200);
         }
+
+        $channel = 'private-chat.' . $message->chat_id;
+
+        broadcast(new ChatMessageStatus($message));
+
+        return response()->json([
+            'message' => $message,
+            'channel' => $channel,
+            'success' => true
+        ], 200);
     }
 
-    // get a chat by id
+    // public function messageStatus(Request $request, ChatMessages $message)
+    // {
+    //     if (!$message->chat->isParticipant($request->user()->id)) {
+    //         return response()->json([
+    //             'message' => 'Not found the conversation',
+    //             'success' => false
+    //         ], 404);
+    //     }
+
+    //     $messageData = json_decode($message->data);
+    //     $seenBy = collect($messageData->seenBy ?? [])
+    //         ->push($request->user()->id)
+    //         ->unique()
+    //         ->toArray();
+
+    //     $status = count($message->chat->participants->pluck('id')->except($message->user_id)) < count($seenBy) ? 'received' : 'seen';        $messageData->seenBy = $seenBy;
+    //     $messageData->status = $status;
+
+    //     $message->data = json_encode($messageData);
+    //     $message->save();
+
+    //     $message = new MessageResource($message);
+
+    //     $channel = 'private-chat.' . $message->chat_id;
+
+    //     broadcast(new ChatMessageStatus($message));
+
+    //     return response()->json([
+    //         'message' => $message,
+    //         'channel' => $channel,
+    //         'success' => true
+    //     ], 200);
+    // }
+
+    // get messages in a chat by chat_id
     public function getMessagesById(Chat $chat,Request $request){
         $perPage = $request->query('perPage', 4);
 

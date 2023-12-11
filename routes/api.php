@@ -75,7 +75,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/get-chats',[ChatController::class, 'getChats']);
         Route::get('/search-user',[ChatController::class, 'searchUsers']);
         Route::post('/send-text-message',[ChatController::class, 'sendTextMessage']);
-        Route::get('/message-status/{message}',[ChatController::class, 'messageStatus']);
+        Route::patch('/message-status/{message}',[ChatController::class, 'messageStatus']);
         Route::get('/get-messages-by-id/{chat}',[ChatController::class, 'getMessagesById']);
     });
 });
