@@ -7,7 +7,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
-use App\Http\Resources\MassageResource;
+use App\Http\Resources\MessageResource;
 
 class NewMessage extends Notification implements ShouldBroadcast
 {
@@ -24,7 +24,7 @@ class NewMessage extends Notification implements ShouldBroadcast
      *
      * @return void
      */
-    public function __construct(MassageResource $message)
+    public function __construct(MessageResource $message)
     {
         $this->message = $message;
     }
@@ -95,7 +95,7 @@ class NewMessage extends Notification implements ShouldBroadcast
     {
         return [
                 'chat_id' => $this->message->chat_id,
-                'from' => $this->message->sender->first_name, 
+                'from' => $this->message->sender->name, 
                 'message' => $this->message->message, 
         ];
     }
