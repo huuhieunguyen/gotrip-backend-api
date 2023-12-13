@@ -25,6 +25,7 @@ use App\Http\Controllers\PostLikeController;
 |
 */
 Broadcast::routes(['middleware' => ['auth:sanctum']]);
+// Broadcast::routes(["prefix" => "api", "middleware" => ['auth:sanctum']]);
 
 Route::prefix('v1/authen')->group(function () {
     Route::post('/register', [AuthenController::class, 'register']);
