@@ -13,6 +13,7 @@ use App\Http\Controllers\User\FollowController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\PostLikeController;
+use App\Http\Controllers\CommentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -72,6 +73,13 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::patch('/message-status/{message}',[ChatController::class, 'messageStatus']);
         Route::get('/get-messages-by-id/{chat}',[ChatController::class, 'getMessagesById']);
     });
+
+    Route::prefix('v1/comment')->group(function () {
+        Route::post('/create-comment', [CommentController::class, 'createComment']);
+
+        Route::put('/{commentId}', 'CommentController@updateCommentById');
+        Route::delete('/{commentId}', 'CommentController@deleteCommentById');
+    });
 });
 
 // Users
@@ -88,6 +96,11 @@ Route::prefix('v1/posts')->group(function () {
     Route::get('/posts_without_users_like', [PostController::class, 'getPosts']);
     Route::get('/{authorId}', [PostController::class, 'getPostsByAuthorIdWithLikes']);
     Route::get('/by_author_without_users_like/{authorId}', [PostController::class, 'getPostsByAuthorID']);
+});
+
+Route::prefix('v1/comment')->group(function () {
+    Route::get('/get-comments/{postId}', [CommentController::class, 'getCommentsByPost']);
+
 });
 
 /*
