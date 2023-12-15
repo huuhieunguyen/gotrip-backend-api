@@ -49,4 +49,9 @@ class Post extends Model
     {
         return $this->hasMany(Like::class)->with('user:id,name,avatar_url,cover_image_url,is_active');
     }
+
+    public function comments()
+    {
+        return $this->hasMany(Comment::class);
+    }
 }
