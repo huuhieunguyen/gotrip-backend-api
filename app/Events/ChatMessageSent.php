@@ -11,6 +11,7 @@ use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 use App\Models\ChatMessages;
 use App\Http\Resources\MessageResource;
+use Illuminate\Support\Facades\Log;
 
 class ChatMessageSent implements ShouldBroadcast
 {
@@ -26,6 +27,7 @@ class ChatMessageSent implements ShouldBroadcast
         $this->message = $message;
     }
     public function broadcastWith(){
+        Log::info('ChatMessageSent event broadcasted with message: ' . json_encode($this->message));
         return ['message'=> $this->message];
     }
 
@@ -39,5 +41,10 @@ class ChatMessageSent implements ShouldBroadcast
         return [
             new PresenceChannel('chat.'.$this->message->chat_id),
         ];
+    }
+
+    public function broadcastAs()
+    {
+        return 'chat.message.sent';
     }
 }
