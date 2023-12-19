@@ -50,7 +50,7 @@ class PostLikeController extends Controller
         );
 
         $notificationMessage = "{$user->name} liked your post {$post->id}.";
-        $pusher->trigger("post-like-channel", "post-like-event", [
+        $pusher->trigger('author-channel.' . $post->author_id, "post-like-event", [
             'author_id' => $post->author_id,
             'post_id' => $post->id,
             'notification' => $notificationMessage,
