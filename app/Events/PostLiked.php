@@ -39,7 +39,8 @@ class PostLiked implements ShouldBroadcast
      */
     public function broadcastOn()
     {
-        return new PrivateChannel('author-channel.'.$this->like->post->author_id);
+        // return new PrivateChannel('author-channel.'.$this->like->post->author_id);
+        return new PresenceChannel('author-channel.'.$this->like->post->author_id);
     }
 
     public function broadcastAs()
