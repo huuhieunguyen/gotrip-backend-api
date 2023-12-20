@@ -51,7 +51,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::patch('/{postId}', [PostController::class, 'update']);
         Route::delete('/{postId}', [PostController::class, 'destroy']);
 
-        Route::post('/{postId}/like', [PostLikeController::class, 'store']);
+        Route::post('/like', [PostLikeController::class, 'store']);
         Route::delete('/{postId}/unlike', [PostLikeController::class, 'destroy']);
     });
 

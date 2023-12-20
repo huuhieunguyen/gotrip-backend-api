@@ -11,15 +11,16 @@ use App\Models\Notification;
 use Pusher\Pusher;
 use App\Handlers\NotificationHandler;
 use App\Events\PostLiked;
+use App\Http\Requests\Notification\SendNotiRequest;
 
 class PostLikeController extends Controller
 {
-    public function store(Request $request, $postId)
+    public function store(SendNotiRequest $request)
     {
         $user = Auth::user();
 
         try {
-            $post = Post::findOrFail($postId);
+            $post = Post::findOrFail($request->post_id);
         } catch (ModelNotFoundException $exception) {
             return response()->json(['message' => 'Post not found'], 404);
         }
@@ -34,21 +35,33 @@ class PostLikeController extends Controller
         }
         
         // Create the like
-        $like = new Like();
-        $like->user_id = $user->id;
-        $like->post_id = $post->id;
-        $like->save();
+        // $like = new Like();
+        // $like->user_id = $user->id;
+        // $like->post_id = $post->id;
+        // $like->save();
+
+        // Create the post like
+        $postLike = Like::create([
+            'user_id' => $user->id,
+            'post_id' => $request->post_id,
+        ]);
         
         // Update the like_count field in the posts table
         $post->increment('like_count');
 
-        event(new PostLiked($like));
+        $notification = Notification::create([
+            'user_id' => $postLike->post->author_id,
+            'message' => 'Your post has been liked!',
+        ]);
+
+        // Broadcast the like notification to the author of the post
+        event(new PostLiked($postLike));
 
         // Create the notification
-        $notification = new Notification();
-        $notification->user_id = $post->author_id;
-        $notification->message = "{$user->name} liked your post {$post->id}.";
-        $notification->save();
+        // $notification = new Notification();
+        // $notification->user_id = $post->author_id;
+        // $notification->message = "{$user->name} liked your post {$post->id}.";
+        // $notification->save();
         
         $post->load(['author:id,name,avatar_url,is_active,last_active_time']);
         $post->load('images');
@@ -59,37 +72,6 @@ class PostLikeController extends Controller
         ], 201);
     }
 
-    // protected $notificationHandler;
-
-    // public function __construct(NotificationHandler $notificationHandler)
-    // {
-    //     $this->notificationHandler = $notificationHandler;
-    // }
-
-    // public function store(Request $request, $postId)
-    // {
-    //     // ...
-
-    //     $like->save();
-
-    //     $notificationMessage = "{$user->name} liked your post {$post->id}.";
-    //     $this->notificationHandler->sendNotification('post-like-channel', 'post-like-event', $post->author_id, $notificationMessage);
-
-    //     // ...
-    // }
-
-    // have store noti in DB
-    // public function store(Request $request, $postId)
-    // {
-    //     // ...
-
-    //     $like->save();
-
-    //     $notificationMessage = "{$user->name} liked your post {$post->id}.";
-    //     $this->notificationHandler->storeNotification($post->author_id, $notificationMessage);
-
-    //     // ...
-    // }
     public function destroy($postId)
     {
         $user = Auth::user();
