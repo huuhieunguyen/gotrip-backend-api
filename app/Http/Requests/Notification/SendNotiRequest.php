@@ -24,7 +24,8 @@ class SendNotiRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'message' => ['required','max:500'],
+            'post_id' => ['required', 'exists:posts,id'],
+            // 'message' => ['required','max:500'],
         ];
     }
 }
