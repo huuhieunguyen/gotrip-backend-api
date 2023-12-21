@@ -10,6 +10,21 @@ use App\Models\Post;
 
 class PostController extends Controller
 {
+    public function getPostById($id)
+    {
+        $post = Post::find($id);
+
+        if (!$post) {
+            return response()->json(['error' => 'Post not found'], 404);
+        }
+
+        $post->load(['author:id,name,avatar_url,is_active,last_active_time']);
+        $post->load('images');
+
+        return response()->json([
+            'post' => $post,
+        ]);
+    }
     public function getPosts(Request $request)
     {
         $perPage = $request->query('perPage', 4);
