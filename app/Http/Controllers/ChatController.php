@@ -27,7 +27,10 @@ class ChatController extends Controller
         })->first();
 
         if ($chat) {
-            return response()->json(['message' => 'Users already had a chat'], 400);
+            return response()->json([
+                'message' => 'Users already had a chat',
+                'chat_id' => $chat->id,
+            ], 400);
         }
 
         //if not, create a new one
