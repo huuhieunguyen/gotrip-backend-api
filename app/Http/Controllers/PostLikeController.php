@@ -45,7 +45,7 @@ class PostLikeController extends Controller
 
         $notification = Notification::create([
             'user_id' => $postLike->post->author_id,
-            'message' => "{$user->name} liked your post {$post->id}.",
+            'message' => "{$user->name} liked your post.",
         ]);
 
         // Broadcast the like notification to the author of the post

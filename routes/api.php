@@ -55,7 +55,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/like', [PostLikeController::class, 'store']);
         Route::delete('/{postId}/unlike', [PostLikeController::class, 'destroy']);
 
-        Route::get('/{postId}', [PostController::class, 'getPostById']);
+        Route::get('/get-post-by-id/{postId}', [PostController::class, 'getPostById']);
     });
 
     Route::prefix('v1/user-relationships')->group(function () {
