@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Models\Notification;
 
 class NotificationController extends Controller
@@ -29,6 +30,7 @@ class NotificationController extends Controller
                 'message' => $notification->message,
                 'is_read' => $notification->is_read,
                 'read_at' => $notification->read_at,
+                'created_at' => $notification->created_at,
             ];
         });
 
@@ -42,6 +44,33 @@ class NotificationController extends Controller
                 'from' => $notifications->firstItem(),
                 'to' => $notifications->lastItem(),
             ],
+        ], 200);
+    }
+
+    public function markAsRead($notificationId)
+    {
+        /** @var \App\Models\User $user **/
+        $user = Auth::user();
+
+        // Find the notification by ID
+        try {
+            $notification = Notification::findOrFail($notificationId);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'message' => 'Notification Not Found.',
+            ], 404);
+        }
+
+        // Only allow the author of the notification to mark it as read
+        if ($notification->author_id === $user->id) {
+            // Update the is_read field to true
+            $notification->is_read = true;
+            $notification->save();
+        }
+
+        return response()->json([
+            'message' => 'Notification marked as read',
+            'is_read' => $notification->is_read
         ], 200);
     }
 }
