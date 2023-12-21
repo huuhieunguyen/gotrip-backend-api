@@ -12,7 +12,8 @@ class PostController extends Controller
 {
     public function getPostById($id)
     {
-        $post = Post::find($id);
+        // $post = Post::with('likesWithUsers')->find($id);
+        $post = Post::with('likesWithUsers')->find($id);
 
         if (!$post) {
             return response()->json(['error' => 'Post not found'], 404);
