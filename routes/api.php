@@ -14,6 +14,7 @@ use App\Http\Controllers\ChatController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\PostLikeController;
 use App\Http\Controllers\CommentController;
+use App\Http\Controllers\NotificationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -53,6 +54,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
         Route::post('/like', [PostLikeController::class, 'store']);
         Route::delete('/{postId}/unlike', [PostLikeController::class, 'destroy']);
+
+        Route::get('/{postId}', [PostController::class, 'getPostById']);
     });
 
     Route::prefix('v1/user-relationships')->group(function () {
@@ -80,6 +83,11 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/{commentId}', 'CommentController@updateCommentById');
         Route::delete('/{commentId}', 'CommentController@deleteCommentById');
     });
+
+    Route::prefix('v1/notifications')->group(function () {
+        Route::get('/', [NotificationController::class, 'getNotifications']);
+    });
+
 });
 
 // Users

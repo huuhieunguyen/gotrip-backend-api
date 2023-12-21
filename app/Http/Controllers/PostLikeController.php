@@ -33,12 +33,6 @@ class PostLikeController extends Controller
         if ($existingLike) {
             return response()->json(['message' => 'You have already liked the post'], 400);
         }
-        
-        // Create the like
-        // $like = new Like();
-        // $like->user_id = $user->id;
-        // $like->post_id = $post->id;
-        // $like->save();
 
         // Create the post like
         $postLike = Like::create([
@@ -55,13 +49,7 @@ class PostLikeController extends Controller
         ]);
 
         // Broadcast the like notification to the author of the post
-        event(new PostLiked($postLike));
-
-        // Create the notification
-        // $notification = new Notification();
-        // $notification->user_id = $post->author_id;
-        // $notification->message = "{$user->name} liked your post {$post->id}.";
-        // $notification->save();
+        broadcast(new PostLiked($postLike));
         
         $post->load(['author:id,name,avatar_url,is_active,last_active_time']);
         $post->load('images');

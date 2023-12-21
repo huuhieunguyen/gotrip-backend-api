@@ -37,8 +37,7 @@ class PostLiked implements ShouldBroadcast
     public function broadcastOn()
     {
         // Broadcast to the author of the post
-        // return new Channel('author-channel.'.$this->like->post->author_id);
-        return new PresenceChannel('author-channel.'.$this->like->post->author_id);
+        return new PrivateChannel('author-channel.'.$this->like->post->author_id);
     }
 
     /**
@@ -48,15 +47,6 @@ class PostLiked implements ShouldBroadcast
      */
     public function broadcastWith()
     {
-        // $notification = Notification::create([
-        //     'user_id' => $this->like->post->author_id,
-        //     'message' => "{$user->name} liked your post {$post->id}.",
-        // ]);
-
-        // return [
-        //     'like' => $this->like,
-        //     'notification' => $notification,
-        // ];
         return ['like' => $this->like];
     }
 
