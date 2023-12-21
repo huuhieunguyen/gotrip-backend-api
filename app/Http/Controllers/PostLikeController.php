@@ -44,7 +44,10 @@ class PostLikeController extends Controller
         $post->increment('like_count');
 
         $notification = Notification::create([
-            'user_id' => $postLike->post->author_id,
+            'author_id' => $postLike->post->author_id,
+            'user_id' => $user->id,
+            'post_id' => $post->id,
+            'type' => 'like',
             'message' => "{$user->name} liked your post.",
         ]);
 

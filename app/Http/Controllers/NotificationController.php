@@ -8,23 +8,40 @@ use App\Models\Notification;
 
 class NotificationController extends Controller
 {
-    public function getNotifications(Request $request)
+    public function getNotifications()
     {
-        $perPage = $request->query('perPage', 10);
-
+        /** @var \App\Models\User $user **/
         $user = Auth::user();
-        
-        // $notifications = $user->notifications()->paginate($perPage);
-        $notifications = Notification::where('user_id', $user->id)->paginate($perPage);
 
-        $responseData = [
-            'notifications' => $notifications,
-            // 'current_page' => $notifications->currentPage(),
-            // 'last_page' => $notifications->lastPage(),
-            // 'per_page' => $notifications->perPage(),
-            // 'total' => $notifications->total(),
-        ];
+        $notifications = $user->sentNotifications()
+            ->with(['user']) // Eager load the user relationship
+            ->paginate(10);
 
-        return response()->json($responseData);
+        // Transform the notifications to include the avatar_url
+        $transformedNotifications = $notifications->map(function ($notification) {
+            return [
+                'id' => $notification->id,
+                'author_id' => $notification->author_id,
+                'post' => $notification->post_id,
+                'user_id' => $notification->user_id,
+                'user_avatar_url' => $notification->user->avatar_url,
+                'type' => $notification->type,
+                'message' => $notification->message,
+                'is_read' => $notification->is_read,
+                'read_at' => $notification->read_at,
+            ];
+        });
+
+        return response()->json([
+            'notifications' => $transformedNotifications,
+            'pagination' => [
+                'total' => $notifications->total(),
+                'per_page' => $notifications->perPage(),
+                'current_page' => $notifications->currentPage(),
+                'last_page' => $notifications->lastPage(),
+                'from' => $notifications->firstItem(),
+                'to' => $notifications->lastItem(),
+            ],
+        ], 200);
     }
 }
